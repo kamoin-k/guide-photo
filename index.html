@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LIFF Form</title>
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+</head>
+<body>
+    <h1>LIFF Form</h1>
+    <form id="myForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+        <label for="image">Image:</label>
+        <input type="file" id="image" name="image" accept="image/*" required><br><br>
+        <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        // LIFF SDKの初期化
+        async function initializeLiff() {
+            try {
+                await liff.init({ liffId: '1661543898-49vQrn3k' });  // ご自身のLIFF IDに置き換えてください
+            } catch (error) {
+                console.error('LIFF initialization failed', error);
+            }
+        }
+        initializeLiff();
+
+        // フォームの送信イベントのハンドラ
+        document.getElementById('myForm').addEventListener('submit', submitForm);
+
+        // フォームのデータをLINE Botに送信
+        function submitForm(event) {
+            event.preventDefault();  // デフォルトのフォーム送信をキャンセル
+
+            var name = document.getElementById('name').value;
+            var imageInput = document.getElementById('image');
+            var imageFile = imageInput.files[0];
+
+            if (imageFile) {
+                var reader = new FileReader();
+                reader.readAsDataURL(imageFile);
+                reader.onload = function(event) {
+                    var imageData = event.target.result;
+
+                    liff.sendMessages([
+                        {
+                            type: 'text',
+                            text: 'Name: ' + name
+                        },
+                        {
+                            type: 'image',
+                            originalContentUrl: imageData,
+                            previewImageUrl: imageData
+                        }
+                    ]).then(() => {
+                        // 送信成功時にデータをリセット
+                        document.getElementById('myForm').reset();
+                        updateSpreadsheet(name, imageData);
+                    }).catch((error) => {
+                        console.error('Failed to send message', error);
+                    });
+                };
+            }
+        }
+
+        // スプレッドシートのデータを更新
+        function updateSpreadsheet(name, imageData) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://script.google.com/macros/s/AKfycbxHxJyosJ_yUn5XsFRNDByXn8K6dvIwVPIoka7UnPHGETR8JdQxXfTuJtAr1QnRHxjkzQ/exec', true);  // ご自身のGAS WebアプリのURLに置き換えてください
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+            // フォームデータを送信
+            var formData = 'name=' + encodeURIComponent(name) + '&imageData=' + encodeURIComponent(imageData);
+            xhr.send(formData);
+        }
+    </script>
+</body>
+</html>
