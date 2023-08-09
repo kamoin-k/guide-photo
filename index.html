@@ -10,11 +10,18 @@
     <form id="myForm">
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" required><br><br>
-
+        <label for="image">Image:</label>
+        <input type="file" id="image" name="image" accept="image/*" required><br><br>  
         <input type="submit" value="Submit">
     </form>
+	<img id="imagePreview" src="#" alt="Image Preview">
 
     <script>
+	    // 画像を画面に表示する
+	        document.getElementById('image').addEventListener('change', function(event) {
+        	    var imagePreview = document.getElementById('imagePreview');
+	            imagePreview.src = URL.createObjectURL(event.target.files[0]);
+    	    });
         // LIFF SDKの初期化
         async function initializeLiff() {
             try {
