@@ -40,29 +40,16 @@
             event.preventDefault();  // デフォルトのフォーム送信をキャンセル
 
             var name = document.getElementById('name').value;
-            var imageInput = document.getElementById('image');
-            var imageFile = imageInput.files[0];
-
-            if (imageFile) {
-                var reader = new FileReader();
-                reader.readAsDataURL(imageFile);
-                reader.onload = function(event) {
-                    var imageData = event.target.result;
 
                     liff.sendMessages([
                         {
                             type: 'text',
                             text: 'Name: ' + name
-                        },
-                        {
-                            type: 'image',
-                            originalContentUrl: imageData,
-                            previewImageUrl: imageData
                         }
                     ]).then(() => {
                         // 送信成功時にデータをリセット
                         document.getElementById('myForm').reset();
-                        updateSpreadsheet(name, imageData);
+                        updateSpreadsheet(name);
                         liff.closeWindow();
                     }).catch((error) => {
                         console.error('Failed to send message', error);
@@ -72,13 +59,13 @@
         }
 
         // スプレッドシートのデータを更新
-        function updateSpreadsheet(name, imageData) {
+        function updateSpreadsheet(name) {
             var xhr = new XMLHttpRequest();
             xhr.open('POST', 'https://script.google.com/macros/s/AKfycby9W39wckcO2UuB_gtyr5SwstYT8SVxsRZDRmqZSMgIIRI3Ula_NumgMGemk1wraNMS7w/exec', true);  // ご自身のGAS WebアプリのURLに置き換えてください
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
             // フォームデータを送信
-            var formData = 'name=' + encodeURIComponent(name) + '&imageData=' + encodeURIComponent(imageData);
+            var formData = 'name=' + encodeURIComponent(name);
             xhr.send(formData);
         }
     </script>
