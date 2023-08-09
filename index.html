@@ -26,6 +26,7 @@
         async function initializeLiff() {
             try {
                 await liff.init({ liffId: '1661543898-49vQrn3k' });  // ご自身のLIFF IDに置き換えてください
+		displayLiffData();
             } catch (error) {
                 console.error('LIFF initialization failed', error);
             }
